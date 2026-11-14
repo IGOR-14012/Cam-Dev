@@ -21,7 +21,15 @@ jobs:
         with:
           gradle-version: "8.7"
 
-      # Locate the folder that contains settings.gradle.kts (root or a subfolder)
+      # The project was uploaded as a zip, so extract it first
+      - name: Unzip project
+        run: |
+          if [ -f WifiCamViewer.zip ]; then
+            mkdir -p unzipped
+            unzip -q WifiCamViewer.zip -d unzipped
+          fi
+
+      # Locate the folder that contains settings.gradle.kts
       - name: Find project directory
         id: find
         run: |
