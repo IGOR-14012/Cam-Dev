@@ -21,11 +21,24 @@ jobs:
         with:
           gradle-version: "8.7"
 
+      # Locate the folder that contains settings.gradle.kts (root or a subfolder)
+      - name: Find project directory
+        id: find
+        run: |
+          F=$(find . -name settings.gradle.kts -not -path './.git/*' | head -n 1)
+          if [ -z "$F" ]; then
+            echo "settings.gradle.kts not found. Files in the repository:"
+            find . -not -path './.git/*' -type f | sort
+            exit 1
+          fi
+          echo "dir=$(dirname "$F")" >> "$GITHUB_OUTPUT"
+
       - name: Build debug APK
+        working-directory: ${{ steps.find.outputs.dir }}
         run: gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ steps.find.outputs.dir }}/app/build/outputs/apk/debug/app-debug.apk
